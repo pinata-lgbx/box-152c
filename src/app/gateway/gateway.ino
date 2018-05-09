@@ -40,6 +40,8 @@
 
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
+#include <TimeLib.h>
+#include <WidgetRTC.h>
 
 #include "config.h"
 
@@ -52,6 +54,34 @@ char auth[] = BLYNK_AUTH;
 char ssid[] = WIFI_SSID;
 char pass[] = WIFI_PASS;
 
+BlynkTimer timer;
+WidgetRTC rtc;
+
+// Digital clock display of the time
+void clockDisplay()
+{
+  // You can call hour(), minute(), ... at any time
+  // Please see Time library examples for details
+
+  String currentTime = String(hour()) + ":" + minute() + ":" + second();
+  String currentDate = String(day()) + " " + month() + " " + year();
+  Serial.print("Current time: ");
+  Serial.print(currentTime);
+  Serial.print(" ");
+  Serial.print(currentDate);
+  Serial.println();
+
+  // Send time to the App
+  Blynk.virtualWrite(V1, currentTime);
+  // Send date to the App
+  Blynk.virtualWrite(V2, currentDate);
+}
+
+BLYNK_CONNECTED() {
+  // Synchronize time on connection
+  rtc.begin();
+}
+
 void setup()
 {
   // Debug console
@@ -61,10 +91,14 @@ void setup()
   // You can also specify server:
   //Blynk.begin(auth, ssid, pass, "blynk-cloud.com", 80);
   //Blynk.begin(auth, ssid, pass, IPAddress(192,168,1,100), 8080);
+
+  // Display digital clock every 10 seconds
+  timer.setInterval(10000L, clockDisplay);
 }
 
 void loop()
 {
   Blynk.run();
+  timer.run();
 }
 
