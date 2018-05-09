@@ -1,0 +1,1 @@
+To install this library copy these folders to your Arduino sketchbook location.
